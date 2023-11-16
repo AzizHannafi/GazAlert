@@ -29,11 +29,13 @@ class MainActivity : ComponentActivity() {
     private var publishTopic by mutableStateOf("security/gaz")
     private var publishQoS by mutableStateOf(0)
     private var publishMessage by mutableStateOf("11")
+    private var serverUrl by mutableStateOf("tcp://broker.hivemq.com:1883")
+    private var clientId by mutableStateOf("AzizHannafiId")
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mqttManager = MqttManager(this)
+        mqttManager = MqttManager(this,serverUrl, clientId,publishTopic)
         setContent {
             GazAlertTheme {
                 Surface(
@@ -45,10 +47,14 @@ class MainActivity : ComponentActivity() {
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        GasMonitorUI(gasLevel)
+                        // Input fields for publishing
+                        TextField(
+                            value =serverUrl ,
+                            onValueChange = { serverUrl = it },
+                            label = { Text("serverUrl") }
+                        )
 
-                        Spacer(modifier = Modifier.height(16.dp))
-
+                        Spacer(modifier = Modifier.height(8.dp))
                         // Input fields for publishing
                         TextField(
                             value = publishTopic,
@@ -58,10 +64,11 @@ class MainActivity : ComponentActivity() {
 
                         Spacer(modifier = Modifier.height(8.dp))
 
+
                         TextField(
                             value = publishMessage,
                             onValueChange = { publishMessage = it },
-                            label = { Text("Message") }
+                            label = { Text("Connect") }
                         )
 
                         Spacer(modifier = Modifier.height(8.dp))
@@ -72,6 +79,11 @@ class MainActivity : ComponentActivity() {
                         Button(onClick = { publishMessage() }) {
                             Text("Publish Message")
                         }
+                        GasMonitorUI(gasLevel)
+
+
+
+
                     }
                 }
             }
@@ -85,7 +97,9 @@ class MainActivity : ComponentActivity() {
     private fun publishMessage() {
         mqttManager.publishMessage(publishTopic, publishMessage, publishQoS)
     }
-    // Function to handle incoming gas levels and update the UI
+    private fun connetToBroker() {
+        mqttManager.connect()
+    }
     fun handleIncomingGasLevel(newGasLevel: Double) {
         // Use the value from MQTT to update the Compose UI
         gasLevel = newGasLevel

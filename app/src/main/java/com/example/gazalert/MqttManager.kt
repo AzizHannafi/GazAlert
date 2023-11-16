@@ -11,11 +11,11 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 import org.eclipse.paho.client.mqttv3.MqttException
 import org.eclipse.paho.client.mqttv3.MqttMessage
 
-class MqttManager(private val context: Context)  {
+class MqttManager(private val context: Context,private val serverUri :String, private val clientId :String,private val subscriptionTopic :String)  {
 
-    private val serverUri = "tcp://broker.hivemq.com:1883"
-    private val clientId = "AzizHannafiId"
-    private val subscriptionTopic = "security/gaz"
+   // private val serverUri = "tcp://broker.hivemq.com:1883"
+   // private val clientId = "AzizHannafiId"
+   // private val subscriptionTopic = "security/gaz"
 
     lateinit var mqttAndroidClient: MqttAndroidClient
 
@@ -23,8 +23,8 @@ class MqttManager(private val context: Context)  {
         connect()
     }
 
-    private fun connect() {
-        mqttAndroidClient = MqttAndroidClient(context, serverUri, clientId)
+    public fun connect() {
+        mqttAndroidClient = MqttAndroidClient(context, this.serverUri, this.clientId)
         mqttAndroidClient.setCallback(object : MqttCallbackExtended {
             override fun connectComplete(reconnect: Boolean, serverURI: String?) {
                 if (reconnect) {
@@ -82,18 +82,18 @@ class MqttManager(private val context: Context)  {
 
     private fun subscribeToTopic() {
         try {
-            mqttAndroidClient.subscribe(subscriptionTopic, 0, null, object : IMqttActionListener {
+            mqttAndroidClient.subscribe(this.subscriptionTopic, 0, null, object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken?) {
                     // Subscription successful
-                    println("Subscribed to $subscriptionTopic")
-                    Log.d("MqttManager", "Subscribed to $subscriptionTopic")
+                    println("Subscribed to $this.subscriptionTopic")
+                    Log.d("MqttManager", "Subscribed to $this.subscriptionTopic")
 
                 }
 
                 override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
                     // Subscription failed
-                    println("Failed to subscribe to $subscriptionTopic")
-                    Log.e("MqttManager", "Failed to subscribe to $subscriptionTopic")
+                    println("Failed to subscribe to $this.subscriptionTopic")
+                    Log.e("MqttManager", "Failed to subscribe to $this.subscriptionTopic")
 
                 }
             })
